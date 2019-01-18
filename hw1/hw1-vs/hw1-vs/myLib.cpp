@@ -2,6 +2,25 @@
 #include <stdlib.h>
 #include "myLib.h"
 #include <string.h>
+ImagePixelGetter::ImagePixelGetter(u8* image, int height, int width,int channel)
+{
+	this->image = image;
+	this->height = height;
+	this->width = width;
+	this->channel = channel;
+}
+u8 ImagePixelGetter::get(int x, int y,int z)
+{
+	if (x < 0)
+		x = -x;
+	if (x >= height)
+		x = 2 * height - x - 1;
+	if (y < 0)
+		y = -y;
+	if (y >= width)
+		y = 2 * width - y - 1;
+	return image[(x*width + y)*this->channel + z];
+}
 
 u8* readImage(const char* fileName, int size)
 {
@@ -54,137 +73,89 @@ u8* demosaicing(u8* image, int height, int width, const char* type)
 	int r = 0;
 	int g = 1;
 	int b = 2;
-	int x, y;
-	int center, left, right, top, bot, left_top, left_bot, right_top, right_bot, top2, bot2, left2, right2;
+	u8 center, left, right, top, bot, left_top, left_bot, right_top, right_bot, top2, bot2, left2, right2;
+	ImagePixelGetter getter(image, height, width);
 	for (int i = 0; i < height; ++i)
 		for (int j = 0; j < width; ++j)
 		{
-			center = width * i + j;
-			//left
-			x = i, y = j - 1;
-			if (y < 0)
-				y = 2 * j - y;
-			left = width * x + y;
-			//right
-			x = i, y = j + 1;
-			if (y >= width)
-				y = 2 * j - y;
-			right = width * x + y;
-			//top
-			x = i - 1, y = j;
-			if (x < 0)
-				x = 2 * i - x;
-			top = width * x + y;
-			//bot
-			x = i + 1, y = j;
-			if (x >= height)
-				x = 2 * i - x;
-			bot = width * x + y;
-			//left2
-			x = i, y = j - 2;
-			if (y < 0)
-				y = 2 * j - y;
-			left2 = width * x + y;
-			//right2
-			x = i, y = j + 2;
-			if (y >= width)
-				y = 2 * j - y;
-			right2 = width * x + y;
-			//top2
-			x = i - 2, y = j;
-			if (x < 0)
-				x = 2 * i - x;
-			top2 = width * x + y;
-			//bot2
-			x = i + 2, y = j;
-			if (x >= height)
-				x = 2 * i - x;
-			bot2 = width * x + y;
-			//left_top
-			x = i - 1, y = j - 1;
-			if (x < 0)
-				x = 2 * i - x;
-			if (y < 0)
-				y = 2 * j - y;
-			left_top = width * x + y;
-			//left_bot
-			x = i + 1, y = j - 1;
-			if (x >= height)
-				x = 2 * i - x;
-			if (y < 0)
-				y = 2 * j - y;
-			left_bot = width * x + y;
-			//right_top
-			x = i - 1, y = j + 1;
-			if (x < 0)
-				x = 2 * i - x;
-			if (y >= width)
-				y = 2 * j - y;
-			right_top = width * x + y;
-			//right_bot
-			x = i + 1, y = j + 1;
-			if (x >= height)
-				x = 2 * i - x;
-			if (y >= width)
-				y = 2 * j - y;
-			right_bot = width * x + y;
+			center = getter.get(i, j);
+			left = getter.get(i, j - 1);
+			right = getter.get(i, j + 1);
+			top = getter.get(i - 1, j);
+			bot = getter.get(i + 1, j);
+			left2 = getter.get(i, j - 2);
+			right2 = getter.get(i, j + 2);
+			top2 = getter.get(i - 2, j);
+			bot2 = getter.get(i + 2, j);
+			left_top = getter.get(i-1, j-1);
+			left_bot = getter.get(i+1, j-1);
+			right_top = getter.get(i-1, j+1);
+			right_bot = getter.get(i+1, j+1);
 			///////////////////////////////////////
-			int red_pos = center * 3 + r;
-			int green_pos = center * 3 + g;
-			int blue_pos = center * 3 + b;
+			int red_pos = (i*width+j) * 3 + r;
+			int green_pos = (i*width + j) * 3 + g;
+			int blue_pos = (i*width + j) * 3 + b;
 
 			if (i % 2 == j % 2) //on green pixel
 			{
 
 				//set green pixel value
-				newImage[green_pos] = image[center];
+				newImage[green_pos] = center;
 
 				if (i % 2 == 0)
 				{
 					//set red pixel value
-					newImage[red_pos] = (image[right] + image[left]) / 2;
+					newImage[red_pos] = (right + left) / 2;
 					if (strcmp(type, "MHC") == 0)
-						newImage[red_pos] += beta * (image[center] - 0.2*(image[left2] + image[right2] + image[left_top] + image[left_bot] + image[right_top] + image[right_bot]) + 0.1*(image[top2] + image[bot2]));
+						newImage[red_pos] += beta * (center 
+							- 0.2*(left2 + right2 + left_top + left_bot + right_top + right_bot) 
+							+ 0.1*(top2 + bot2));
 					//set blue pixel value
-					newImage[blue_pos] = (image[bot] + image[top]) / 2;
+					newImage[blue_pos] = (bot + top) / 2;
 					if (strcmp(type, "MHC") == 0)
-						newImage[blue_pos] += beta * (image[center] - 0.2*(image[top2] + image[bot2] + image[left_top] + image[left_bot] + image[right_top] + image[right_bot]) + 0.1*(image[left2] + image[right2]));
+						newImage[blue_pos] += beta * (center
+							- 0.2*(top2 + bot2 + left_top + left_bot + right_top + right_bot) 
+							+ 0.1*(left2 + right2));
 				}
 				else
 				{
 					//set red pixel value
-					newImage[red_pos] = (image[top] + image[bot]) / 2;
+					newImage[red_pos] = (top + bot) / 2;
 					if (strcmp(type, "MHC") == 0)
-						newImage[red_pos] += beta * (image[center] - 0.2*(image[top2] + image[bot2] + image[left_top] + image[left_bot] + image[right_top] + image[right_bot]) + 0.1*(image[left2] + image[right2]));
+						newImage[red_pos] += beta * (center 
+							- 0.2*(top2 + bot2 + left_top + left_bot + right_top + right_bot) 
+							+ 0.1*(left2 + right2));
 					//set blue pixel value
-					newImage[blue_pos] = (image[left] + image[right]) / 2;
+					newImage[blue_pos] = (left + right) / 2;
 					if (strcmp(type, "MHC") == 0)
-						newImage[blue_pos] += beta * (image[center] - 0.2*(image[left2] + image[right2] + image[left_top] + image[left_bot] + image[right_top] + image[right_bot]) + 0.1*(image[top2] + image[bot2]));
+						newImage[blue_pos] += beta * (center
+							- 0.2*(left2 + right2 + left_top + left_bot + right_top + right_bot) 
+							+ 0.1*(top2 + bot2));
 				}
 			}
 			else if (i % 2 == 1) //on blue pixel
 			{
-				newImage[blue_pos] = image[center];
+				newImage[blue_pos] = center;
 				//set green pixel value
-				newImage[green_pos] = (image[top] + image[right] + image[left] + image[bot]) / 4;
+				newImage[green_pos] = (top + right + left + bot) / 4;
 				if (strcmp(type, "MHC") == 0)
-					newImage[green_pos] += alpha * (image[center] - 0.25*(image[left2] + image[right2] + image[top2] + image[bot2]));
+					newImage[green_pos] += alpha * (center - 0.25*(left2 + right2 + top2 + bot2));
 				//set red pixel value
-				newImage[red_pos] = (image[right_top] + image[left_top] + image[right_bot] + image[left_bot]) / 4;
+				newImage[red_pos] = (right_top + left_top + right_bot + left_bot) / 4;
 				if (strcmp(type, "MHC") == 0)
-					newImage[red_pos] += gamma * (image[center] - 0.25*(image[left2] + image[right2] + image[top2] + image[bot2]));
+					newImage[red_pos] += gamma * (center - 0.25*(left2 + right2 + top2 + bot2));
 			}
 			else //on red pixel
 			{
-				newImage[red_pos] = image[center];
+				newImage[red_pos] = center;
 				//set green pixel value
-				newImage[green_pos] = (image[bot] + image[left] + image[right] + image[top]) / 4;
+				newImage[green_pos] = (bot + left + right + top) / 4;
 				if (strcmp(type, "MHC") == 0)
-					newImage[green_pos] += alpha * (image[center] - 0.25*(image[left2] + image[right2] + image[top2] + image[bot2]));
+					newImage[green_pos] += alpha * (center - 0.25*(left2 + right2 + top2 + bot2));
 				//set blue pixel value
-				newImage[blue_pos] = (image[left_bot] + image[right_bot] + image[left_top] + image[right_top]) / 4;
+				newImage[blue_pos] = (left_bot + right_bot + left_top + right_top) / 4;
 				if (strcmp(type, "MHC") == 0)
-					newImage[blue_pos] += gamma * (image[center] - 0.25*(image[left2] + image[right2] + image[top2] + image[bot2]));
+					newImage[blue_pos] += gamma * (center - 0.25*(left2 + right2 + top2 + bot2));
 			}
 
 		}
@@ -250,4 +221,20 @@ u8* enhanceImageByCumulative(u8* image, u32* hist, int height, int width)
 		newImage[i] = gray;
 	}
 	return newImage;
+}
+
+
+
+u8* weightedMeanFilter(u8* image, int height, int width, int N, const char* method="uniform")
+{
+	for(int i=0;i<height;++i)
+		for (int j = 0; j < width; ++j)
+		{
+
+		}
+}
+
+double calcPSNR(u8* Y, u8* I, int height, int width)
+{
+	return 0;
 }

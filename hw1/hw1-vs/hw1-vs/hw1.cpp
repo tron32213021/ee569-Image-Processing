@@ -23,6 +23,7 @@ namespace hw1
 		int width = 390;
 		u8* imageRAW = readImage(image_Path, height*width);
 		u8* image_fix_MHC = demosaicing(imageRAW, height, width, "MHC");
+		showGrayImage(imageRAW, height, width);
 		showRGBImage(image_fix_MHC, height, width);
 
 		delete[] imageRAW;
@@ -55,5 +56,18 @@ namespace hw1
 		delete[] imageGray, hist, histImage;
 		delete[] enhancedImage, hist_enhanced, histImage_enhanced;
 		delete[] enhancedImage_cu, hist_enhanced_cu, histImage_enhanced_cu;
+	}
+
+	void q2_a()
+	{
+
+	}
+	void q2_b()
+	{
+
+	}
+	void q2_c()
+	{
+
 	}
 };
