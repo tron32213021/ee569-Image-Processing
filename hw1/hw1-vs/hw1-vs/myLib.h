@@ -21,3 +21,5 @@ u8* getTransferMap(u32* hist, int height, int width);
 u8* transferImageByMap(u8* map, u8* image, int height, int width);
 u8* enhanceImageByHist(u8* image, u32* hist, int height, int width);
 u8* enhanceImageByCumulative(u8* image, u32* hist, int height, int width);
+u8* weightedMeanFilter(u8* image, int height, int width, int N, const char* method = "uniform");
+double calcPSNR(u8* Y, u8* I, int height, int width);

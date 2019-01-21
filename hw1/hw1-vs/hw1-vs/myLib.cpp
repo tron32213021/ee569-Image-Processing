@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "myLib.h"
 #include <string.h>
+#include <math.h>
 ImagePixelGetter::ImagePixelGetter(u8* image, int height, int width,int channel)
 {
 	this->image = image;
@@ -225,16 +226,38 @@ u8* enhanceImageByCumulative(u8* image, u32* hist, int height, int width)
 
 
 
-u8* weightedMeanFilter(u8* image, int height, int width, int N, const char* method="uniform")
+u8* weightedMeanFilter(u8* image, int height, int width, int N, const char* method)
 {
+	u8* newImage = new u8[height*width];
+	ImagePixelGetter getter(image, height, width);
 	for(int i=0;i<height;++i)
 		for (int j = 0; j < width; ++j)
 		{
-
+			double s = 0;
+			double w = 0;
+			double weight;
+			for (int x = -N / 2; x <= N / 2; ++x)
+				for (int y = -N / 2; y <= N / 2; ++y)
+				{
+					if (strcmp(method, "uniform") == 0)
+						weight = 1.0;
+					else
+						weight = exp(-(x*x + y*y)/2);
+					w += weight;
+					s += weight * getter.get(i + x, j + y);
+				}
+			newImage[i*width + j] = (u8)(s / w);
 		}
+	return newImage;
 }
 
 double calcPSNR(u8* Y, u8* I, int height, int width)
 {
-	return 0;
+	int s = 0;
+	for (int i = 0; i < height; ++i)
+		for (int j = 0; j < width; ++j)
+			s += (Y[i*width + j] - I[i*width + j])*(Y[i*width + j] - I[i*width + j]);
+	double MSE = 1.0*s / (height*width);
+
+	return 10*log10(255*255/MSE);
 }
