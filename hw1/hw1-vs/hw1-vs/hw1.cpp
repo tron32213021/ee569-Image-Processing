@@ -72,7 +72,6 @@ namespace hw1
 		q1_c_helper(image_dark_Path, height, width, "rose_dark");
 		q1_c_helper(image_bright_Path, height, width, "rose_bright");
 		q1_c_helper(image_mix_Path, height, width, "rose_mix");
-
 	}
 
 	void q2_a()
@@ -84,9 +83,13 @@ namespace hw1
 		showGrayImage(image, height, width);
 		u8* image_filtered = weightedMeanFilter(image, height, width, 7);
 		u8* image_filtered_Gaussian = weightedMeanFilter(image, height, width, 7,"Gaussian");
-		showGrayImage(image_filtered, height, width);
-		showGrayImage(image_filtered_Gaussian, height, width);
-		delete[] image, image_filtered, image_filtered_Gaussian;
+		u8* image_filtered_Bilateral = weightedMeanFilter(image, height, width, 7, "bilateral");
+		u8* image_filtered_Non_local = weightedMeanFilter(image, height, width, 20, "non-local");
+		//showGrayImage(image_filtered, height, width,"Mean");
+		//showGrayImage(image_filtered_Gaussian, height, width,"Gaussian");
+		showGrayImage(image_filtered_Bilateral, height, width,"Bilateral");
+		showGrayImage(image_filtered_Non_local, height, width,"Non_Local");
+		delete[] image, image_filtered, image_filtered_Gaussian,image_filtered_Bilateral, image_filtered_Non_local;
 	}
 	void q2_b()
 	{

@@ -245,7 +245,33 @@ u8* enhanceImageByCumulative(u8* image, u32* hist, int height, int width)
 	return newImage;
 }
 
+double getWeight(u8* image, int height, int width, int i, int j, int k, int l, const char* method)
+{
+	ImagePixelGetter getter(image, height, width);
+	if (strcmp(method, "uniform")==0)
+		return 1.0;
+	else if (strcmp(method, "Gaussian")==0)
+		return exp(-((i - k)*(i - k) + (j - l) * (j - l)) / 2);
+	else if (strcmp(method, "bilateral") == 0)
+	{
+		double sigma_c = 10, sigma_s = 1000;
+		return exp(-((i - k)*(i - k) + (j - l) * (j - l)) / (2 * sigma_c) - pow(getter.get(i, j) - getter.get(k, l), 2) / (2 * sigma_s));
+	}
+	else if (strcmp(method, "non-local") == 0)
+	{
+		int N = 5;
+		int a = 10;
+		double h = 5;
 
+		double t = 0;
+		for(int t_i=-N/2;t_i<=N/2;++t_i)
+			for (int t_j = -N / 2; t_j <= N / 2; ++t_j)
+				t += 1 / (sqrt(2 * 3.1415926)*a)*exp(-(t_i*t_i + t_j * t_j) / (2 * a*a))*pow(getter.get(i + t_i, j + t_j) - getter.get(k + t_i, l + t_j), 2);
+		return exp(-t / (h*h));
+	}
+	else
+		return 0;
+}
 
 u8* weightedMeanFilter(u8* image, int height, int width, int N, const char* method)
 {
@@ -260,10 +286,7 @@ u8* weightedMeanFilter(u8* image, int height, int width, int N, const char* meth
 			for (int x = -N / 2; x <= N / 2; ++x)
 				for (int y = -N / 2; y <= N / 2; ++y)
 				{
-					if (strcmp(method, "uniform") == 0)
-						weight = 1.0;
-					else
-						weight = exp(-(x*x + y*y)/2);
+					weight = getWeight(image,height,width,i,j,i+x,j+y,method);
 					w += weight;
 					s += weight * getter.get(i + x, j + y);
 				}
@@ -282,3 +305,4 @@ double calcPSNR(u8* Y, u8* I, int height, int width)
 
 	return 10*log10(255*255/MSE);
 }
+

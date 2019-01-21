@@ -4,7 +4,6 @@ using namespace hw1;
 
 int main()
 {
-	q1_a();
-	q1_b();
+	q2_a();
 	return 0;
 }
