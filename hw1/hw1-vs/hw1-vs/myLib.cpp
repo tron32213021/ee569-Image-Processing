@@ -65,9 +65,14 @@ u8* getChannel(const u8* image, int height, int width, int channel)
 			newImage[i*width + j] = image[(i*width + j)*3+channel];
 	return newImage;
 }
+u8 fix(int value)
+{
+	return fmin(fmax(value, 0), 255);
+}
 
 u8* demosaicing(u8* image, int height, int width, const char* type)
 {
+
 	u8* newImage = new u8[height*width * 3];
 	double alpha = 1.0 / 2, beta = 5.0 / 8, gamma = 3.0 / 4;
 	int imageSize = height * width;
@@ -96,7 +101,6 @@ u8* demosaicing(u8* image, int height, int width, const char* type)
 			int red_pos = (i*width+j) * 3 + r;
 			int green_pos = (i*width + j) * 3 + g;
 			int blue_pos = (i*width + j) * 3 + b;
-
 			if (i % 2 == j % 2) //on green pixel
 			{
 
@@ -108,30 +112,39 @@ u8* demosaicing(u8* image, int height, int width, const char* type)
 					//set red pixel value
 					newImage[red_pos] = (right + left) / 2;
 					if (strcmp(type, "MHC") == 0)
-						newImage[red_pos] += beta * (center 
-							- 0.2*(left2 + right2 + left_top + left_bot + right_top + right_bot) 
-							+ 0.1*(top2 + bot2));
+					{
+						newImage[red_pos] = fix((int)newImage[red_pos]+beta * (center
+							- 0.2*(left2 + right2 + left_top + left_bot + right_top + right_bot)
+							+ 0.1*(top2 + bot2)));
+						
+					}
 					//set blue pixel value
 					newImage[blue_pos] = (bot + top) / 2;
 					if (strcmp(type, "MHC") == 0)
-						newImage[blue_pos] += beta * (center
-							- 0.2*(top2 + bot2 + left_top + left_bot + right_top + right_bot) 
-							+ 0.1*(left2 + right2));
+					{
+						newImage[blue_pos] = fix((int)newImage[blue_pos]+beta * (center
+							- 0.2*(top2 + bot2 + left_top + left_bot + right_top + right_bot)
+							+ 0.1*(left2 + right2)));
+					}
 				}
 				else
 				{
 					//set red pixel value
 					newImage[red_pos] = (top + bot) / 2;
 					if (strcmp(type, "MHC") == 0)
-						newImage[red_pos] += beta * (center 
-							- 0.2*(top2 + bot2 + left_top + left_bot + right_top + right_bot) 
-							+ 0.1*(left2 + right2));
+					{
+						newImage[red_pos] = fix((int)newImage[red_pos]+beta * (center
+							- 0.2*(top2 + bot2 + left_top + left_bot + right_top + right_bot)
+							+ 0.1*(left2 + right2)));
+					}
 					//set blue pixel value
 					newImage[blue_pos] = (left + right) / 2;
 					if (strcmp(type, "MHC") == 0)
-						newImage[blue_pos] += beta * (center
-							- 0.2*(left2 + right2 + left_top + left_bot + right_top + right_bot) 
-							+ 0.1*(top2 + bot2));
+					{
+						newImage[blue_pos] = fix((int)newImage[blue_pos]+beta * (center
+							- 0.2*(left2 + right2 + left_top + left_bot + right_top + right_bot)
+							+ 0.1*(top2 + bot2)));
+					}
 				}
 			}
 			else if (i % 2 == 1) //on blue pixel
@@ -140,11 +153,15 @@ u8* demosaicing(u8* image, int height, int width, const char* type)
 				//set green pixel value
 				newImage[green_pos] = (top + right + left + bot) / 4;
 				if (strcmp(type, "MHC") == 0)
-					newImage[green_pos] += alpha * (center - 0.25*(left2 + right2 + top2 + bot2));
+				{
+					newImage[green_pos] = fix((int)newImage[green_pos]+alpha * (center - 0.25*(left2 + right2 + top2 + bot2)));
+				}
 				//set red pixel value
 				newImage[red_pos] = (right_top + left_top + right_bot + left_bot) / 4;
 				if (strcmp(type, "MHC") == 0)
-					newImage[red_pos] += gamma * (center - 0.25*(left2 + right2 + top2 + bot2));
+				{
+					newImage[red_pos] = fix((int)newImage[red_pos]+gamma * (center - 0.25*(left2 + right2 + top2 + bot2)));
+				}
 			}
 			else //on red pixel
 			{
@@ -152,11 +169,15 @@ u8* demosaicing(u8* image, int height, int width, const char* type)
 				//set green pixel value
 				newImage[green_pos] = (bot + left + right + top) / 4;
 				if (strcmp(type, "MHC") == 0)
-					newImage[green_pos] += alpha * (center - 0.25*(left2 + right2 + top2 + bot2));
+				{
+					newImage[green_pos] = fix((int)newImage[green_pos]+alpha * (center - 0.25*(left2 + right2 + top2 + bot2)));
+				}
 				//set blue pixel value
 				newImage[blue_pos] = (left_bot + right_bot + left_top + right_top) / 4;
 				if (strcmp(type, "MHC") == 0)
-					newImage[blue_pos] += gamma * (center - 0.25*(left2 + right2 + top2 + bot2));
+				{
+					newImage[blue_pos] = fix((int)newImage[blue_pos] +gamma * (center - 0.25*(left2 + right2 + top2 + bot2)));
+				}
 			}
 
 		}

@@ -11,7 +11,9 @@ void showGrayImage(const u8* image, int height, int width,const char* winName)
 void showRGBImage(const u8* image, int height, int width,const char* winName)
 {
 	cv::Mat myMat(height, width, CV_8UC3, (void *)image);
-	cv::imshow(winName, myMat);
+	cv::Mat dst;
+	cv::cvtColor(myMat, dst, cv::COLOR_RGB2BGR);
+	cv::imshow(winName, dst);
 	cv::waitKey(0);
 }
 void fillBar(u8* canvas, int height,int width,int x1, int y1, int x2, int y2)
