@@ -6,12 +6,6 @@ Email:	zhenyeji@usc.edu
 Submission date: Jan 22 2019
 */
 #pragma once
-#include "uni.h"
-namespace hw1 {
-	void q1_a();
-	void q1_b();
-	void q1_c();
-	void q2_a();
-	void q2_b();
-	void q2_c();
-};
+#define u8 unsigned char
+#define u32 unsigned int
+#include <string>

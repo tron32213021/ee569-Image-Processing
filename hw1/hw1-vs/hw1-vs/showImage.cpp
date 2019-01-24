@@ -1,11 +1,19 @@
+/*
+copyright: Zhenye Jiang
+Name:	Zhenye Jiang
+USC_ID:	5553039273
+Email:	zhenyeji@usc.edu
+Submission date: Jan 22 2019
+*/
 #include <opencv2/opencv.hpp>
 #include "showImage.h"
-
+#include "myLib.h"
 void showGrayImage(const u8* image, int height, int width,const char* winName)
 {
 	cv::Mat myMat(height, width, CV_8UC1, (void *)image);
 	cv::imshow(winName, myMat);
 	cv::waitKey(0);
+	writeImage(winName, image, height*width);
 }
 
 void showRGBImage(const u8* image, int height, int width,const char* winName)
@@ -15,6 +23,7 @@ void showRGBImage(const u8* image, int height, int width,const char* winName)
 	cv::cvtColor(myMat, dst, cv::COLOR_RGB2BGR);
 	cv::imshow(winName, dst);
 	cv::waitKey(0);
+	writeImage(winName, image, height*width*3);
 }
 void fillBar(u8* canvas, int height,int width,int x1, int y1, int x2, int y2)
 {

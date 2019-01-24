@@ -1,3 +1,10 @@
+/*
+copyright: Zhenye Jiang
+Name:	Zhenye Jiang
+USC_ID:	5553039273
+Email:	zhenyeji@usc.edu
+Submission date: Jan 22 2019
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include "myLib.h"
@@ -22,7 +29,20 @@ u8 ImagePixelGetter::get(int x, int y,int z)
 		y = 2 * width - y - 1;
 	return image[(x*width + y)*this->channel + z];
 }
+void printu32Number(u32* hist, int n)
+{
+	for (int i = 0; i < n-1; ++i)
+		printf("%d,", hist[i]);
+	printf("%d\n",hist[n-1]);
 
+}
+void printu8Number(u8* map, int n)
+{
+	for (int i = 0; i < n - 1; ++i)
+		printf("%d,", map[i]);
+	printf("%d\n", map[n - 1]);
+
+}
 u8* readImage(const char* fileName, int size)
 {
 	FILE* file;
@@ -37,7 +57,7 @@ u8* readImage(const char* fileName, int size)
 	return image;
 }
 
-void writeImage(const char* fileName, u8* image,int size)
+void writeImage(const char* fileName, const u8* image,int size)
 {
 	FILE* file;
 	if (!(file = fopen(fileName, "wb")))
@@ -219,7 +239,9 @@ u8* transferImageByMap(u8* map, u8* image, int height, int width)
 u8* enhanceImageByHist(u8* image, u32* hist, int height, int width)
 {
 	u8* map = getTransferMap(hist, height, width);
-	u8* newImage = transferImageByMap(map, image, height, width);
+	printu8Number(map, 256);
+   	u8* newImage = transferImageByMap(map, image, height, width);
+
 	delete[] map;
 	return newImage;
 }
@@ -254,7 +276,7 @@ double getWeight(u8* image, int height, int width, int i, int j, int k, int l, c
 		return exp(-((i - k)*(i - k) + (j - l) * (j - l)) / 2);
 	else if (strcmp(method, "bilateral") == 0)
 	{
-		double sigma_c = 10, sigma_s = 1000;
+		double sigma_c = 1, sigma_s = 10000;
 		return exp(-((i - k)*(i - k) + (j - l) * (j - l)) / (2 * sigma_c) - pow(getter.get(i, j) - getter.get(k, l), 2) / (2 * sigma_s));
 	}
 	else if (strcmp(method, "non-local") == 0)
@@ -306,3 +328,91 @@ double calcPSNR(u8* Y, u8* I, int height, int width)
 	return 10*log10(255*255/MSE);
 }
 
+void sort(u8* a, int len)
+{
+	for(int i=0;i<len-1;++i)
+		for (int j = 0; j < len - i - 1; ++j)
+		{
+			if (a[j] > a[j + 1])
+			{
+				u8 t = a[j];
+				a[j] = a[j + 1];
+				a[j + 1] = t;
+			}
+		}
+}
+u8* removeMixNoise(u8* image, int height, int width, int channel)
+{
+	int N = 5;
+	u8* newImage = new u8[height*width*channel];
+	ImagePixelGetter getter(image, height, width, channel);
+	for (int ch = 0; ch < channel; ++ch)
+	{
+		for(int i=0;i<height;++i)
+			for (int j = 0; j < width; ++j)
+			{
+				u8* pixels = new u8[N*N];
+				int n = 0;
+				for(int wx=-N/2;wx<=N/2;++wx)
+					for (int wy = -N / 2; wy <= N / 2; ++wy)
+					{
+						pixels[n++] = getter.get(i + wx, j + wy, ch);
+					}
+				sort(pixels, N*N);
+				newImage[channel*(i*width + j) + ch] = pixels[N*N/2];
+			}
+	}
+	
+	u8* res = new u8[height*width*channel];
+	ImagePixelGetter newGetter(newImage, height, width, channel);
+	for (int ch = 0; ch < channel; ++ch)
+	{
+		for (int i = 0; i < height; ++i)
+			for (int j = 0; j < width; ++j)
+			{
+				double s = 0;
+				double w=0, weight;
+				for (int wx = -N / 2; wx <= N / 2; ++wx)
+					for (int wy = -N / 2; wy <= N / 2; ++wy)
+					{
+						weight = exp(-(wx*wx + wy * wy));
+						w += weight;
+						s += newGetter.get(i + wx, j + wy, ch)*weight;
+					}
+				
+				res[channel*(i*width + j) + ch] = u8(s/w);
+			}
+	}
+	return res;
+
+
+}
+
+u8* removeShotNoise(u8* image, int height, int width)
+{
+	int N = 5;
+	u8* image_Gaussian = new u8[height*width];
+	u8* res= new u8[height*width];
+	ImagePixelGetter getter(image_Gaussian, height, width);
+	for(int i=0;i<height;++i)
+		for (int j = 0; j < width; ++j)
+			image_Gaussian[i*width + j] = u8(2 * sqrt(image[i*width + j] + 3.0 / 8));
+
+	for (int i = 0; i < height; ++i)
+		for (int j = 0; j < width; ++j)
+		{
+			double s = 0;
+			double w = 0, weight;
+			for (int wx = -N / 2; wx <= N / 2; ++wx)
+				for (int wy = -N / 2; wy <= N / 2; ++wy)
+				{
+					weight = exp(-(wx*wx + wy * wy));
+					w += weight;
+					s += getter.get(i + wx, j + wy)*weight;
+				}
+
+			res[i*width + j] = u8(s / w);
+		}
+	delete[] image_Gaussian;
+	return res;
+}
