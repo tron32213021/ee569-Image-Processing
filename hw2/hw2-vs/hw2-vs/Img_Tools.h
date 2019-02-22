@@ -1,4 +1,4 @@
 #pragma once
 #include "uni.h"
-#include "Img.h"
-void demosaicing(Img* newImage, Img* image, std::string type);
+
+void do_filter(double* output, u8* input, int* filter_mask, double w, Shape s_i, Shape s_m);

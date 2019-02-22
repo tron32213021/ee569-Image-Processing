@@ -166,6 +166,11 @@ void Img::setShape(Img I)
 	image = NULL;
 }
 
+void Img::setImage(u8 * image)
+{
+	this->image = image;
+}
+
 void Img::initSpace()
 {
 	if (image)

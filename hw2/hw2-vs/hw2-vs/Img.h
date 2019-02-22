@@ -30,6 +30,7 @@ public:
 	void set(u8 value, int x, int y, int z=0);
 	void setShape(int height, int width, int channel=1);
 	void setShape(Img I);
+	void setImage(u8* image);
 	void initSpace();
 	Img getCh_Image(int channel);
 
