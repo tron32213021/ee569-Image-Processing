@@ -1,0 +1,21 @@
+%copyright: ZhenyeJiang, zhenyeji@usc.edu
+clear;
+bridge_path="HW2_images/bridge.raw";
+bridge_gray=readraw(bridge_path,400,600);
+height=400;
+width=600;
+G=zeros(height,width);
+I2=[1,2;3,0];
+I4=generate_2n_Dithering_matrix(I2);
+I8=generate_2n_Dithering_matrix(I4);
+I16=generate_2n_Dithering_matrix(I8);
+I32=generate_2n_Dithering_matrix(I16);
+TH_I2=generate_threshold_matrix(I2);
+TH_I8=generate_threshold_matrix(I8);
+TH_I32=generate_threshold_matrix(I32);
+HalfTone_I2=halftone_by_DithMat(bridge_gray,TH_I2);
+HalfTone_I8=halftone_by_DithMat(bridge_gray,TH_I8);
+HalfTone_I32=halftone_by_DithMat(bridge_gray,TH_I32);
+figure;imshow(HalfTone_I2);
+figure;imshow(HalfTone_I8);
+figure;imshow(HalfTone_I32);
