@@ -1,0 +1,13 @@
+clear;
+I=readraw("HW3_Images/rice.raw",500,690,3);
+gray=rgb2gray(I);
+edges=edge(gray,'canny',[0,0.1]);
+a=imdilate(edges,ones(5,5));
+img=imfill(a,'hole');
+b=imerode(img,ones(11,11));
+imshow(b);
+G=shrink(b);
+imshow(G);
+points=find_lonely_dots(G);
+[N,C]=myClasses(points,size(G));
+hold on; plot(C(:,2),C(:,1),'*');

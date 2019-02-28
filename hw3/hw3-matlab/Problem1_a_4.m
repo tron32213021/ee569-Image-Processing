@@ -1,0 +1,12 @@
+I=readraw("HW3_Images/lighthouse.raw",512,512);
+I_part1=I(:,1:256);
+I_part2=I(1:256,257:512);
+I_part3=I(257:512,257:512);
+[~,part1_corners]=find_corners_square(I_part1);
+[~,part2_corners]=find_corners_square(I_part2);
+[~,part3_corners]=find_corners_square(I_part3);
+part2_corners=part2_corners+[0,256];
+part3_corners=part3_corners+[256,256];
+figure;imshow(I_part1);
+figure;imshow(I_part2);
+figure;imshow(I_part3);
