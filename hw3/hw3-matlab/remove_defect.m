@@ -1,4 +1,5 @@
-function G = remove_defect(I,s)
+function [G,out_points] = remove_defect(I,s)
+    out_points=[];
     I=1-I;
     G=I;
     flag=1;
@@ -8,6 +9,7 @@ function G = remove_defect(I,s)
             [p,~]=shrink_one_iteration(p);
         end
         points=find_lonely_dots(p);
+        out_points=[out_points;points];
         [n,~]=size(points);
         if n>0
             for i=1:n

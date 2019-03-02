@@ -6,8 +6,43 @@ a=imdilate(edges,ones(5,5));
 img=imfill(a,'hole');
 b=imerode(img,ones(11,11));
 imshow(b);
-G=shrink(b);
+G=thin(b);
+G=imdilate(G,ones(3,3));
+G=shrink(G);
 imshow(G);
 points=find_lonely_dots(G);
 [N,C]=myClasses(points,size(G));
 hold on; plot(C(:,2),C(:,1),'*');
+sum(N)
+
+
+
+red=[];
+blue=[];
+green=[];
+yellow=[];
+pink=[];
+for i=1:11
+    ppp=getGrainFromBig2Small(b,points,C,i);
+    red=[red;ppp(1,:)];
+    blue=[blue;ppp(2,:)];
+    green=[green;ppp(3,:)];
+    yellow=[yellow;ppp(4,:)];
+    pink=[pink;ppp(5,:)];
+end
+
+figure;imshow(G);
+hold on;
+plot(red(:,2),red(:,1),'r.');
+plot(blue(:,2),blue(:,1),'b.');
+plot(green(:,2),green(:,1),'g.');
+plot(yellow(:,2),yellow(:,1),'y.');
+plot(pink(:,2),pink(:,1),'m.');
+
+figure;imshow(gray);
+hold on;
+plot(red(:,2),red(:,1),'r*');
+plot(blue(:,2),blue(:,1),'b*');
+plot(green(:,2),green(:,1),'g*');
+plot(yellow(:,2),yellow(:,1),'y*');
+plot(pink(:,2),pink(:,1),'m*');

@@ -8,5 +8,5 @@ pattern2=double(pattern2/255);
 pattern3=double(pattern3/255);
 pattern4=double(pattern4/255);
 
-G=skeletenize(pattern2);
-imshow(G);
+G=skeletenize(pattern4);
+figure;imshow(G);

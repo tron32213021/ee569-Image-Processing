@@ -1,8 +1,13 @@
 function GG = skeletenize(I)
     pt=I;
     changes=1;
+    i=1;
     while(changes==1)
         [pt,changes]=Skel_one_iteration(pt);
+        i=i+1;
+        if i==20 || i==40
+            figure;imshow(pt);figure;
+        end
     end
     GG=pt;
     [height,width]=size(GG);
