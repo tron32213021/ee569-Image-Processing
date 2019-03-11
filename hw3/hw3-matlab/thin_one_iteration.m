@@ -16,7 +16,7 @@ function [G,changes] = thin_one_iteration(I)
             end
         end
     end
-    imshow(T);
+    %imshow(T);
     G=I;
     for i=2:height-1
         for j=2:width-1

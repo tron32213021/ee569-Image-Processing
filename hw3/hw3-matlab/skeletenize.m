@@ -5,9 +5,9 @@ function GG = skeletenize(I)
     while(changes==1)
         [pt,changes]=Skel_one_iteration(pt);
         i=i+1;
-        if i==20 || i==40
-            figure;imshow(pt);figure;
-        end
+%         if i==20 || i==40
+%             figure;imshow(pt);figure;
+%         end
     end
     GG=pt;
     [height,width]=size(GG);

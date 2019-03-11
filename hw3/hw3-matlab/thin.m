@@ -5,9 +5,9 @@ function G = thin(I)
     while(changes==1)
         [pt,changes]=thin_one_iteration(pt);
         i=i+1;
-        if i==20 || i==40
-            figure;imshow(pt);figure;
-        end
+%         if i==20 || i==40
+%             figure;imshow(pt);figure;
+%         end
     end
     G=pt;
 end

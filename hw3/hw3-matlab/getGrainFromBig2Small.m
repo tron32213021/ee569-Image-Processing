@@ -1,4 +1,4 @@
-function points_sorted = getGrainFromBig2Small(I,points,C,n)
+function [points_sorted,s] = getGrainFromBig2Small(I,points,C,n)
     areas=bwlabel(I,8);
     [N,~]=size(points);
     pt=[];
