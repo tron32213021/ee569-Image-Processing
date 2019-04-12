@@ -2,7 +2,8 @@
 Laws_Filters;
 texture=zeros(12,128,128);
 for i=1:12
-    texture(i,:,:)=readraw("./HW4_Images/texture"+i+".raw",128,128);
+    t=readraw("./HW4_Images/texture"+i+".raw",128,128);
+    texture(i,:,:)=histeq(t,256);
     image=reshape(texture(i,:,:),[128,128]);
     subplot(4,3,i);imshow(image/255);
 end
