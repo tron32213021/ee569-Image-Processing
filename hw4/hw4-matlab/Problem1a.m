@@ -14,10 +14,13 @@ for i=1:12
 end
 Energy=Energy';
 Energy=(Energy-mean(Energy))./sqrt(var(Energy));
+%Energy=Energy(:,2:25);
 %3. use PCA to reduce dimension
 C=cov(Energy);
 [V,D]=eig(C);
 coff=Energy*V(:,23:25);
 
 figure;plot3(coff(:,1),coff(:,2),coff(:,3),'.');
-
+%4. kmeans
+idx_25D=kmeans(Energy,4);
+idx_3D=kmeans(coff,4);
